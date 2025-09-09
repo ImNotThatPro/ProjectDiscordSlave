@@ -1,6 +1,6 @@
 from fastapi import FastAPI, Request
 import requests, os
-
+import time 
 app = FastAPI()
 
 # --- Config ---
@@ -25,12 +25,16 @@ def get_ngrok_url():
 
 def update_github_webhook():
     ngrok_url = get_ngrok_url()
+    if not ngrok_url: 
+        print('NO ngrok url found ')
+        return false 
     if not ngrok_url:
         print("⚠️ No ngrok URL found")
         return
 
     api_url = f"https://api.github.com/repos/{REPO_OWNER}/{REPO_NAME}/hooks/{WEBHOOK_ID}"
     headers = {"Authorization": f"token {GITHUB_TOKEN}"}
+    print("Loaded token?", bool(GITHUB_TOKEN))
     data = {
         "config": {
             "url": f"{ngrok_url}/github-webhook",
@@ -44,11 +48,12 @@ def update_github_webhook():
     else:
         print(f"❌ Failed to update webhook: {r.status_code}", r.text)
 
-
-@app.lifespan("startup")
+@app.on_event("startup")
 def startup_event():
-    update_github_webhook()
-
+    for i in range(5):
+        if update_github_webhook():
+            break
+        time.sleep(2)
 
 # --- Your existing webhook handler ---
 @app.post("/github-webhook")
