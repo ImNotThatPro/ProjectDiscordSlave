@@ -86,3 +86,7 @@ async def github_webhook(request: Request):
         requests.post(DISCORD_WEBHOOK, json={"content": message})
 
     return {"status": "ok"}
+
+#curl -X POST -H "Content-Type: application/json" \
+#-d '{"content":"Hello from test"}' \
+#<YOUR_DISCORD_WEBHOOK_URL>
