@@ -13,7 +13,6 @@ DISCORD_WEBHOOK = "https://discord.com/api/webhooks/1412808374713581578/Bd6HgJse
 
 
 def get_ngrok_url():
-    """Fetch current ngrok https tunnel URL"""
     try:
         tunnels = requests.get("http://127.0.0.1:4040/api/tunnels").json()
         for tunnel in tunnels["tunnels"]:
@@ -25,7 +24,6 @@ def get_ngrok_url():
 
 
 def update_github_webhook():
-    """Update GitHub webhook with current ngrok URL"""
     ngrok_url = get_ngrok_url()
     if not ngrok_url:
         print("⚠️ No ngrok URL found")
@@ -47,9 +45,8 @@ def update_github_webhook():
         print(f"❌ Failed to update webhook: {r.status_code}", r.text)
 
 
-@app.on_event("startup")
+@app.lifespan("startup")
 def startup_event():
-    """Run on server start"""
     update_github_webhook()
 
 
